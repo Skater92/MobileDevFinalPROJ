@@ -1,42 +1,33 @@
-import { StatusBar } from "expo-status-bar";
-import { app } from "./firebaseApp";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  ImageBackground,
-  Button,
-} from "react-native";
+import React, { useEffect } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import LandingPage from "./LandingPage";
+import MainPage from "./components/mainPage";
+import TakePictureScreen from "./screens/TakePictureScreen";
+import ImageSelector from "./components/ImageSelector";
+import * as SplashScreen from "expo-splash-screen";
 
 export default function App() {
+  const Stack = createNativeStackNavigator();
+  SplashScreen.preventAutoHideAsync();
+  useEffect(() => {
+    const hideSplashScreen = async () => {
+      try {
+        await SplashScreen.hideAsync();
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    hideSplashScreen();
+  }, []);
   return (
-    <View style={styles.container}>
-      <ImageBackground
-        source={require("./assets/Background.png")}
-        resizeMode="cover"
-        style={styles.background}
-      >
-        <Image
-          source={require("./assets/The_Emperor_Protects.png")}
-          style={{ width: 210, height: 84 }}
-        />
-      </ImageBackground>
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="LandingPage" component={LandingPage} />
+        <Stack.Screen name="MainPage" component={MainPage} />
+        <Stack.Screen name="ImageSelector" component={ImageSelector} />
+        <Stack.Screen name="TakePictureScreen" component={TakePictureScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

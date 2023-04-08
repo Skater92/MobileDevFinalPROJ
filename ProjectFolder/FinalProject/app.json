@@ -7,11 +7,12 @@
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
+      "image": "./assets/Splash1.png",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": ["**/*"],
+
     "ios": {
       "supportsTablet": true
     },
@@ -19,10 +20,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo_white.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.skater6762.FinalProject"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f0996516-13d3-454b-9337-e4228c47d286"
+      }
     }
   }
 }
