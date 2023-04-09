@@ -1,81 +1,84 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
   Image,
   StyleSheet,
-  Button,
-  TouchableOpacity,
   ImageBackground,
-  Modal,
+  TouchableOpacity,
   Alert,
 } from "react-native";
 
-import AppStyles from "../AppStyles.js";
-
-import { useFonts } from "expo-font";
+import AppStyles from "../AppStyles";
+import * as ImagePicker from "expo-image-picker";
+import { Header, Icon, Button } from "react-native-elements";
 import * as SplashScreen from "expo-splash-screen";
-
 import ImageSelector from "../components/ImageSelector";
 
-const TakePictureScreen = () => {
+const TakePictureScreen = ({ navigation }) => {
   const [selectedImage, setSelectedImage] = useState();
-  const [fontsLoaded] = useFonts({
-    MestizoFont: require("../assets/fonts/MestizoFont.ttf"),
-  });
-
-  useEffect(() => {
-    const hideSplashScreen = async () => {
-      try {
-        await SplashScreen.hideAsync();
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    hideSplashScreen();
-  }, []);
-
-  const [modalVisible, setModalVisible] = useState(false);
-
-  const onLayoutRootView = useCallback(async () => {
-    try {
-      if (fontsLoaded) {
-        await SplashScreen.hideAsync();
-      }
-    } catch (error) {
-      console.log(error);
-      console.log("Error in onLayoutRootView");
-    }
-  }, [fontsLoaded]);
 
   const imageSelectedHandler = (imagePath) => {
-    try {
-      setSelectedImage(imagePath);
-    } catch (error) {
-      console.log(error);
-      console.log("Error in imageSelectedHandler");
-    }
+    setSelectedImage(imagePath);
   };
+
+  const onPressHandler = () => {
+    setSelectedImage(null);
+    Alert.alert("Image has been cleared!");
+  };
+
   try {
     return (
-      <View>
-        <View style={AppStyles.form}>
-          <Text style={AppStyles.label}>Lets Take a picture!</Text>
-          {!selectedImage && (
-            <ImageSelector onImageSelected={imageSelectedHandler} />
-          )}
-          {selectedImage && (
-            <View>
-              <Image style={AppStyles.image} source={{ uri: selectedImage }} />
-              <Button
-                title="Reset"
-                onPress={() => {
-                  setSelectedImage(null);
-                }}
-              />
-            </View>
-          )}
-        </View>
+      <View style={AppStyles.container}>
+        <ImageBackground
+          source={require("../assets/Background.png")}
+          resizeMode="cover"
+          style={AppStyles.background}
+        >
+          <Header
+            containerStyle={{
+              backgroundColor: "transparent",
+              position: "absolute",
+              left: 0,
+              top: 0,
+            }}
+            leftComponent={
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Icon name="reply" color="#922722" size={60} />
+              </TouchableOpacity>
+            }
+          />
+          <View>
+            <Text style={{ fontFamily: "MestizoFont", fontSize: 30 }}>
+              SELECTED PICT
+            </Text>
+          </View>
+          <View>
+            {!selectedImage && (
+              <View>
+                <ImageSelector onImageSelected={imageSelectedHandler} />
+              </View>
+            )}
+            {selectedImage && (
+              <View style={AppStyles.modalContent}>
+                <Image
+                  source={{ uri: selectedImage }}
+                  style={AppStyles.image}
+                />
+                <Button
+                  icon={<Icon name="loop" size={15} color="white" />}
+                  buttonStyle={{
+                    backgroundColor: "#922722",
+                    borderWidth: 2,
+                    borderColor: "transparent",
+                  }}
+                  title="  Reset"
+                  onPress={() => onPressHandler()}
+                />
+              </View>
+            )}
+          </View>
+        </ImageBackground>
       </View>
     );
   } catch (error) {
@@ -83,22 +86,5 @@ const TakePictureScreen = () => {
     console.log("Error in TakePictureScreen");
   }
 };
-
-const styles = StyleSheet.create({
-  form: {
-    margin: 30,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  label: {
-    fontSize: 18,
-    marginBottom: 30,
-    textAlign: "center",
-  },
-  image: {
-    width: 400,
-    height: 400,
-  },
-});
 
 export default TakePictureScreen;

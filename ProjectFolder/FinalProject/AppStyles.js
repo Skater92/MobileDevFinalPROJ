@@ -107,4 +107,35 @@ export default StyleSheet.create({
     alignItems: "center",
     marginTop: 0,
   },
+  image: {
+    width: 350,
+    height: 350,
+
+    resizeMode: "contain",
+  },
+  cameraConainer: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    marginTop: 0,
+  },
+  camera: {
+    width: 350,
+    height: 500,
+    resizeMode: "contain",
+    marginTop: 150,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    marginTop: 0,
+  },
+  photo: {
+    width: 250,
+    height: 300,
+    resizeMode: "cover",
+    margin: 20,
+  },
 });

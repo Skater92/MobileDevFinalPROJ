@@ -107,6 +107,31 @@ const LandingPage = ({ navigation }) => {
     setFormVisible(false);
   };
 
+  const handleOnPress = (prop) => {
+    if (prop === "signUp") {
+      setFormVisible(true);
+      setSignInFormVisible(false);
+    } else if (prop === "signIn") {
+      setFormVisible(true);
+      setSignInFormVisible(true);
+    } else if (prop === "signOut") {
+      handleSignOut();
+      handleModalClose();
+    } else if (prop === "guest") {
+      navigation.navigate("MainPage");
+      handleModalClose();
+    } else if (prop === "submit") {
+      if (signInFormVisible) {
+        handleSignIn();
+        setSignInFormVisible(false);
+      } else {
+        handleSignUp();
+        setFormVisible(false);
+      }
+      handleModalClose();
+    }
+  };
+
   const LogInNav = (userCredential) => {
     try {
       if (userCredential.user) {
@@ -117,10 +142,6 @@ const LandingPage = ({ navigation }) => {
     } catch (error) {
       Alert.alert(`${error}`);
     }
-  };
-
-  const handleOnClick = () => {
-    navigation.navigate("MainPage");
   };
 
   return (
@@ -161,7 +182,7 @@ const LandingPage = ({ navigation }) => {
                   }}
                   title="  Sign Up With Email"
                   raised={true}
-                  onPress={() => setFormVisible(true)}
+                  onPress={() => handleOnPress("signUp")}
                   disabled={btnState}
                 />
               </View>
@@ -176,13 +197,13 @@ const LandingPage = ({ navigation }) => {
                   title="  Sign In With Email"
                   loading={false}
                   raised={true}
-                  onPress={() => setSignInFormVisible(true)}
+                  onPress={() => handleOnPress("signIn")}
                   disabled={btnState}
                 />
               </View>
               <View style={AppStyles.button}>
                 <Button
-                  onPress={() => handleSignOut()}
+                  onPress={() => handleOnPress("signOut")}
                   buttonStyle={{
                     backgroundColor: "#922722",
                     borderWidth: 2,
@@ -196,9 +217,7 @@ const LandingPage = ({ navigation }) => {
               </View>
               <View style={AppStyles.button}>
                 <Button
-                  onPress={() => {
-                    handleOnClick();
-                  }}
+                  onPress={() => handleOnPress("guest")}
                   buttonStyle={{
                     backgroundColor: "#922722",
                     borderWidth: 2,
@@ -230,9 +249,7 @@ const LandingPage = ({ navigation }) => {
                       title="Submit"
                       buttonStyle={{ backgroundColor: "#922722" }}
                       onPress={() => {
-                        handleSignUp();
-                        setModalVisible(false);
-                        setFormVisible(false);
+                        handleOnPress("submit");
                       }}
                     />
                   </View>

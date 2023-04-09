@@ -88,6 +88,22 @@ const MainPage = ({ navigation }) => {
     }
   };
 
+  const handleOnPress = (prop) => {
+    if (prop === "email") {
+      sendMessageWithEmail();
+      handleModalClose();
+    } else if (prop === "sms") {
+      sendMessageWithSMS();
+      handleModalClose();
+    } else if (prop === "picture") {
+      handleModalClose();
+      navigation.navigate("TakePictureScreen");
+    } else if (prop === "camera") {
+      handleModalClose();
+      navigation.navigate("CameraPage");
+    }
+  };
+
   const handleModalClose = () => {
     setModalVisible(false);
   };
@@ -142,7 +158,7 @@ const MainPage = ({ navigation }) => {
                     borderColor: "transparent",
                   }}
                   title="  Send with SMS"
-                  onPress={sendMessageWithSMS}
+                  onPress={() => handleOnPress("sms")}
                 />
               </View>
               <View style={AppStyles.button}>
@@ -155,7 +171,20 @@ const MainPage = ({ navigation }) => {
                   }}
                   raised={true}
                   title="  Send with Email"
-                  onPress={sendMessageWithEmail}
+                  onPress={() => handleOnPress("email")}
+                />
+              </View>
+              <View style={AppStyles.button}>
+                <Button
+                  icon={<Icon name="amp-stories" size={15} color="white" />}
+                  buttonStyle={{
+                    backgroundColor: "#922722",
+                    borderWidth: 2,
+                    borderColor: "transparent",
+                  }}
+                  raised={true}
+                  title="   Picture Manager"
+                  onPress={() => handleOnPress("picture")}
                 />
               </View>
               <View style={AppStyles.button}>
@@ -167,8 +196,8 @@ const MainPage = ({ navigation }) => {
                     borderColor: "transparent",
                   }}
                   raised={true}
-                  title="   Picture Manager"
-                  onPress={() => navigation.navigate("ImageSelector")}
+                  title="   Take a Picture"
+                  onPress={() => handleOnPress("camera")}
                 />
               </View>
             </View>

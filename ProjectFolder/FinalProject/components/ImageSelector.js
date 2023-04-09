@@ -1,16 +1,15 @@
-import React, { useCallback } from "react";
+import React, { useState } from "react";
 import {
   View,
   Alert,
-  CameraRoll,
   ImageBackground,
   Image,
   TouchableOpacity,
 } from "react-native";
-import { Header, Icon } from "react-native-elements";
+
 import * as ImagePicker from "expo-image-picker";
+import { Camera, CameraType } from "expo-camera";
 import * as Permissions from "expo-permissions";
-import { useFonts } from "expo-font";
 import AppStyles from "../AppStyles.js";
 import * as SplashScreen from "expo-splash-screen";
 
@@ -18,33 +17,33 @@ import * as SplashScreen from "expo-splash-screen";
 // expo install expo-image-picker
 // expo install expo-permissions
 
-const ImageSelector = ({ navigation, props }) => {
-  const [fontsLoaded] = useFonts({
-    MestizoFont: require("../assets/fonts/MestizoFont.ttf"),
-  });
-
+const ImageSelector = (props) => {
+  const [type, setType] = useState(CameraType.back);
+  const [permission, requestPermission] = Camera.useCameraPermissions();
   const verifyPermissions = async () => {
     const cameraResult = await ImagePicker.requestCameraPermissionsAsync();
     const libraryResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (
-      cameraResult.status !== "granted" &&
-      libraryResult.status !== "granted"
-    ) {
+    if (libraryResult.status !== "granted") {
       Alert.alert(
         "Insufficient Permissions!",
-        "You need to grant camera permissions to use this app.",
+        "You need to grant Media Library permissions to use this app.",
         [{ text: "Okay" }]
       );
       return false;
     }
-    return true;
-  };
 
-  const testPrint = () => {
-    console.log(navigation);
-    console.log(props);
+    if (cameraResult.status !== "granted") {
+      Alert.alert(
+        "Insufficient Permissions!",
+        "You need to grant Camera Permissions to use this app.",
+        [{ text: "Okay" }]
+      );
+      return false;
+    }
+
+    return true;
   };
 
   const retrieveImageHandler = async () => {
@@ -53,110 +52,51 @@ const ImageSelector = ({ navigation, props }) => {
       return false;
     }
 
-    let image = null;
-    try {
-      image = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.5,
-      });
-    } catch (error) {
-      console.log("Error in retrieveImageHandler");
-      console.log(error);
-    }
-
-    if (!image.canceled) {
-      try {
-        console.log(`props: ${props}`);
-        //print out the props object
-        console.log(props);
-        console.log(`props.onImageSelected: ${props.onImageSelected}`);
-        console.log(`image: ${image}`);
-        props.onImageSelected(image.uri);
-      } catch (error) {
-        console.log("Error in if (!image.canceled)");
-        console.log(error);
-      }
-    }
-  };
-
-  const takeImageHandler = async () => {
-    console.log("takeImageHandler");
-    const hasPermission = await verifyPermissions();
-
-    if (!hasPermission) {
-      console.log("No permission");
-      return false;
-    }
-    console.log("Permission granted");
-
-    const image = await ImagePicker.launchCameraAsync({
+    const image = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [16, 9],
+      aspect: [4, 3],
       quality: 0.5,
     });
-    console.log("Image taken");
 
-    if (!image.canceled) {
+    if (!image.cancelled) {
       props.onImageSelected(image.uri);
     }
   };
 
-  const onLayoutRootView = useCallback(async () => {
-    try {
-      if (fontsLoaded) {
-        await SplashScreen.hideAsync();
-      }
-    } catch (error) {
-      console.log(error);
-      console.log("Error in onLayoutRootView");
-    }
-  }, [fontsLoaded]);
+  function toggleCameraType() {
+    setType((current) =>
+      current === CameraType.back ? CameraType.front : CameraType.back
+    );
+  }
 
   return (
-    <View style={AppStyles.container} onLayout={onLayoutRootView}>
+    <View style={AppStyles.container}>
       <ImageBackground
         source={require("../assets/Background.png")}
         resizeMode="cover"
         style={AppStyles.background}
       >
-        <Header
-          containerStyle={{
-            backgroundColor: "transparent",
-            position: "absolute",
-            left: 0,
-            top: 0,
-          }}
-          leftComponent={
-            <TouchableOpacity onPress={() => navigation.navigate("MainPage")}>
-              <Icon
-                name="reply"
-                color="#922722"
-                size={60}
-                onPress={() => navigation.navigate("MainPage")}
-              />
-            </TouchableOpacity>
-          }
-        />
         <Image
           source={require("../assets/The_Emperor_Protects.png")}
-          style={AppStyles.logo}
+          style={{
+            position: "absolute",
+            top: 100,
+            left: 0,
+            width: 210,
+            height: 84,
+          }}
         />
-        <View style={AppStyles.pictContainer}>
-          <TouchableOpacity style={AppStyles.begin} onPress={takeImageHandler}>
-            <Image
-              source={require("../assets/ServoSkull.png")}
-              style={AppStyles.servoSkull}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={AppStyles.begin} onPress={testPrint}>
-            <Image
-              source={require("../assets/AdAdmin.png")}
-              style={AppStyles.servoSkull}
-            />
-          </TouchableOpacity>
-        </View>
+
+        <TouchableOpacity
+          // style={AppStyles.begin}
+          onPress={retrieveImageHandler}
+        >
+          <Image
+            source={require("../assets/AdAdmin.png")}
+            style={AppStyles.servoSkull}
+          />
+        </TouchableOpacity>
       </ImageBackground>
     </View>
   );
