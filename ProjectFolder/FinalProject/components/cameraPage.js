@@ -8,7 +8,7 @@ import {
   Alert,
 } from "react-native";
 import { Camera, CameraType } from "expo-camera";
-import * as Permissions from "expo-permissions";
+
 import AppStyles from "../AppStyles.js";
 import { Button, Icon } from "react-native-elements";
 import * as MediaLibrary from "expo-media-library";
@@ -18,8 +18,6 @@ const CameraPage = ({ navigation }) => {
   const [showModal, setShowModal] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [permission, requestPermission] = Camera.useCameraPermissions();
-  const [mediaPermissions, requestMediaPermissions] =
-    Permissions.usePermissions(Permissions.MEDIA_LIBRARY, { ask: true });
 
   const onPictureSaved = async (photo) => {
     setCapturedImage(photo.uri);
@@ -43,23 +41,56 @@ const CameraPage = ({ navigation }) => {
     }
   };
 
-  const savePhoto = async () => {
-    if (Platform.OS === "ios") {
-      Alert.alert(
-        "HERESY DETECTED!",
-        "Begone iPhone user! You are not worthy of saving this photo! Get a real phone!"
-      );
-    } else {
-      if (mediaPermissions.status !== "granted") {
-        await MediaLibrary.saveToLibraryAsync(capturedImage);
-        Alert.alert("Photo saved to gallery!");
-        setShowModal(false);
-      } else {
+  const requestMediaPermissionAsync = async () => {
+    try {
+      if (Platform.OS === "ios") {
         Alert.alert(
-          "You need to grant permission to save photos to your gallery!"
+          "HERESY DETECTED!",
+          "Begone iPhone user! This app is not compatible with your device! Get a real phone!"
         );
+      } else {
+        const status = await MediaLibrary.requestPermissionsAsync();
+        if (status.granted) {
+          console.log("Permissions already granted");
+        } else {
+          const permissionOptions = [
+            "never_ask_again",
+            "request_when_in_use",
+            "request_always",
+          ];
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+            {
+              title: "Gallery Permission",
+              message:
+                "This app needs access to your gallery, It probably won't allow the app to engage in thermo nuclear war.",
+              buttonNeutral: "Ask Me Later",
+              buttonNegative: "Cancel",
+              buttonPositive: "OK",
+              permissionOptions: permissionOptions,
+            }
+          );
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            console.log("You can use the gallery");
+          } else {
+            Alert.alert(
+              "Some features of this app will not work without gallery access!"
+            );
+            console.log("Gallery permission denied");
+          }
+        }
       }
+    } catch (err) {
+      console.warn(err);
     }
+  };
+
+  const savePhoto = async () => {
+    await requestMediaPermissionAsync();
+    const asset = await MediaLibrary.createAssetAsync(capturedImage);
+    await MediaLibrary.createAlbumAsync("The Emperor Protects", asset, false);
+    Alert.alert("Photo Saved!");
+    setShowModal(false);
   };
 
   return (
